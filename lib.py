@@ -11,6 +11,9 @@ def parse(f):
         currline = f.readline().strip()
     data = getSongData(f)
 
+#Gets song data, and returns in the format [title, artist, source]
+def getSongData(f):
+    #Assume at [Metadata] tag, extract title, artist, source
     return [song, data]
 
 #Gets song data, and returns in the format [title, artist, source]
