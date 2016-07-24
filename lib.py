@@ -51,6 +51,7 @@ def getFileNames():
     #prefer jpg over png
     imageTypes = ("*.jpg", "*.png")
     images = []
+    imageFile = ""
     for type in imageTypes:
         images.extend(glob.glob(type))
     for image in images:
