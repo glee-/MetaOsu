@@ -1,5 +1,6 @@
 from lib import *
 import shutil, os, errno
+import mutagen
 directory = "/home/geo/git/MetaOsu/"
 outputDir = "output/"
 
@@ -17,11 +18,16 @@ if not os.path.exists(outputDir):
 def readSong():
     files = getFileNames()
     f = open(files[0], "r")
-    # return parse(f)
-    return files
+    return parse(f)
+    # return files
+
 
 
 songdata = readSong()
+print(songdata)
 songdir = directory + songdata[0]
-songoutput = outputDir + songdata[0]
-shutil.copy2(songdir, songoutput)
+tempdir = directory + "temp_" + songdata[0]
+
+shutil.copy2(songdir, tempdir)
+
+shutil.move(tempdir, outputDir)
