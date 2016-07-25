@@ -1,18 +1,15 @@
 from lib import *
 import shutil, os, errno
 import eyed3
-directory = "/home/geo/git/MetaOsu/"
-outputDir = "output/"
+
+directory = "/home/geo/git/MetaOsu/Songs/song1/"
+outputDir = "/home/geo/git/MetaOsu/output/"
 
 os.chdir(directory)
 
 if not os.path.exists(outputDir):
     os.makedirs(outputDir)
 
-# f = open("test.txt", "r")
-# f.readline()
-# a = f.readline()
-# print(a == None)
 
 #Assumes that we are in the song directory, parses song data
 def readSong():
