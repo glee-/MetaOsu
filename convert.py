@@ -1,9 +1,13 @@
 from lib import *
 import shutil, os, errno
 
+directory = "Directory here"
+outputDir = "Directory here"
+
+#Examples
 # directory = "/home/geo/git/MetaOsu/Songs/"
-directory = "/home/geo/PlayOnLinux's virtual drives/osu_on_linux/drive_c/Program Files/osu!/Songs/"
-outputDir = "/home/geo/git/MetaOsu/output/"
+# outputDir = "/home/geo/git/MetaOsu/output/"
+
 
 os.chdir(directory)
 
