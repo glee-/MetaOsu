@@ -1,41 +1,30 @@
 from lib import *
 import shutil, os, errno
-import eyed3
 
-directory = "/home/geo/git/MetaOsu/Songs/song1/"
+# directory = "/home/geo/git/MetaOsu/Songs/"
+directory = "/home/geo/PlayOnLinux's virtual drives/osu_on_linux/drive_c/Program Files/osu!/Songs/"
 outputDir = "/home/geo/git/MetaOsu/output/"
 
 os.chdir(directory)
 
+if (directory[-1:] != '/'):
+    directory += '/'
+
 if not os.path.exists(outputDir):
     os.makedirs(outputDir)
 
+tempdirs = []
 
-#Assumes that we are in the song directory, parses song data
-def readSong():
-    files = getFileNames()
-    f = open(files[0], "r")
-    return parse(f), files[1]
+for root, dirs, files in walklevel(directory):
+    tempdir = root + '/'
+    if not directory == (tempdir):
+        tempdirs.append(tempdir)
 
-songdata = readSong()
-print(songdata)
-songdir = directory + songdata[0][0]
-tempdir = directory + "temp_" + songdata[0][0]
+for tempdir in tempdirs:
+    os.chdir(tempdir)
+    editSong(tempdir, outputDir)
 
-shutil.copy2(songdir, tempdir)
-metadata = songdata[0][1]
-
-audiofile = eyed3.load(tempdir)
-audiofile.tag.title = metadata[0].decode('unicode-escape')
-audiofile.tag.artist = metadata[1].decode('unicode-escape')
-audiofile.tag.album = metadata[2].decode('unicode-escape')
-if songdata[1] != "":
-    imagedata = open(songdata[1], "rb").read()
-    if songdata[1][-4:] == ".jpg":
-        audiofile.tag.images.set(3, imagedata, "image/jpeg")
-    else:
-        audiofile.tag.images.set(3, imagedata, "image/png")
-
-audiofile.tag.save()
-
-shutil.move(tempdir, outputDir)
+os.chdir(outputDir)
+tempfiles = os.listdir(outputDir)
+for i in range(len(tempfiles)):
+    os.rename(tempfiles[i], tempfiles[i][5:])
