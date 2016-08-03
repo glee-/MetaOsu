@@ -1,8 +1,8 @@
 from lib import *
 import shutil, os, errno
 
-directory = "Directory here"
-outputDir = "Directory here"
+directory = "/media/geo/D2BCA630BCA60ED3/Games/osu!/Songs/"
+outputDir = "/media/geo/My Passport/Songs/"
 
 #Examples
 # directory = "/home/geo/git/MetaOsu/Songs/"
@@ -31,4 +31,5 @@ for tempdir in tempdirs:
 os.chdir(outputDir)
 tempfiles = os.listdir(outputDir)
 for i in range(len(tempfiles)):
-    os.rename(tempfiles[i], tempfiles[i][5:])
+    if (tempfiles[i][:5]) == "temp_":
+        os.rename(tempfiles[i], tempfiles[i][5:])

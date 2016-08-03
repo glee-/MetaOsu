@@ -1,4 +1,4 @@
-import glob, os
+import glob, os, re
 import shutil, errno
 import eyed3
 
@@ -10,6 +10,7 @@ def readSong():
 
 # Gets file names, and returns in the format [.osu, background]
 def getFileNames():
+    osuFile = None
     for file in glob.glob("*.osu"):
         osuFile = file
 
@@ -26,6 +27,8 @@ def getFileNames():
         else:
             imageFile = image
 
+    if osuFile == None:
+        raise Exception("Couldn't find osu file!")
     return [osuFile, imageFile]
 
 # Parses .osu file, and returns in the format [song, [title, artist, source]]
@@ -73,24 +76,49 @@ def getSongFile(f):
     return song
 
 def editSong(directory, outputDir):
-    songdata = readSong()
+    try:
+        songdata = readSong()
+    except:
+        print("Couldn't find directory for %s" % directory)
+        writeDir(directory,outputDir)
+        return
+
     print("Working on %s" % songdata[0][0])
+
     songdir = directory + songdata[0][0]
-    tempdir = directory + "temp_" + songdata[0][0]
+    songname = songdata[0][1][0].replace(" ", "") + songdata[0][0][-4:]
+    songname = re.sub(r'[?|$|/|!]',r'', songname)
+    tempdir = directory + "temp_" + songname
 
     # Skip .ogg files, as eyed3 cannot open it
     if (songdir[-4:] == ".ogg"):
-        print("Skipped %s, due to .ogg" % songdata[0][0])
+        print("Skipped %s, due to .ogg" % songdir)
+        writeDir(songdir,outputDir)
         return
 
-    shutil.copy2(songdir, tempdir)
+    shutil.copy(songdir, tempdir)
     metadata = songdata[0][1]
 
-    audiofile = eyed3.load(tempdir)
+    try:
+        audiofile = eyed3.load(tempdir)
+    except:
+        os.remove(tempdir)
+        print("Couldn't load %s, deleting..." % songdir)
+        writeDir(songdir,outputDir)
+        return
 
-    audiofile.tag.title = metadata[0].decode('unicode-escape')
-    audiofile.tag.artist = metadata[1].decode('unicode-escape')
-    audiofile.tag.album = metadata[2].decode('unicode-escape')
+    if audiofile.tag == None:
+        print("Couldn't load %s!" % songdir)
+        writeDir(songdir,outputDir)
+        return
+
+    if metadata[0] != None:
+        audiofile.tag.title = metadata[0].decode('unicode-escape')
+    if metadata[1] != None:
+        audiofile.tag.artist = metadata[1].decode('unicode-escape')
+    if metadata[2] != None:
+        audiofile.tag.album = metadata[2].decode('unicode-escape')
+
     if songdata[1] != "":
         imagedata = open(songdata[1], "rb").read()
         if songdata[1][-4:] == ".jpg":
@@ -98,9 +126,20 @@ def editSong(directory, outputDir):
         else:
             audiofile.tag.images.set(3, imagedata, "image/png")
 
-    audiofile.tag.save()
+    try:
+        audiofile.tag.save()
+    except NotImplementedError:
+        os.remove(tempdir)
+        print("File type for %s not supported, deleting..." % songdir)
+        writeDir(songdir,outputDir)
+        return
 
-    shutil.move(tempdir, outputDir)
+#File already exists, so remove current work
+    try:
+        shutil.move(tempdir, outputDir)
+    except:
+        os.remove(tempdir)
+        pass
 
 def walklevel(some_dir, level=1):
     some_dir = some_dir.rstrip(os.path.sep)
@@ -111,3 +150,9 @@ def walklevel(some_dir, level=1):
         num_sep_this = root.count(os.path.sep)
         if num_sep + level <= num_sep_this:
             del dirs[:]
+
+def writeDir(directory, outputDir):
+    os.chdir(outputDir)
+    file = open("Unread_Songs.txt", "ab")
+    file.write(directory + "\n")
+    file.close()
