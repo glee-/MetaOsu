@@ -1,8 +1,8 @@
 from lib import *
 import shutil, os, errno
 
-directory = "/media/geo/D2BCA630BCA60ED3/Games/osu!/Songs/"
-outputDir = "/media/geo/My Passport/Songs/"
+directory = "Directory here"
+outputDir = "Directory here"
 
 #Examples
 # directory = "/home/geo/git/MetaOsu/Songs/"
