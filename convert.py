@@ -1,5 +1,5 @@
 from lib import *
-import shutil, os, errno
+import os
 
 directory = "Directory here"
 outputDir = "Directory here"
